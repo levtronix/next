@@ -6,7 +6,7 @@ import { lusitana } from '@/app/ui/fonts';
 
 import {
   CardsSkeleton,
-  InvoiceSkeleton,
+  LatestInvoicesSkeleton,
   RevenueChartSkeleton
 } from '@/app/ui/skeletons';
 
@@ -25,7 +25,7 @@ const Page = () => {
         <Suspense fallback={<RevenueChartSkeleton />}>
           <RevenueChart />
         </Suspense>
-        <Suspense fallback={<InvoiceSkeleton />}>
+        <Suspense fallback={<LatestInvoicesSkeleton />}>
           <LatestInvoices />
         </Suspense>
       </div>

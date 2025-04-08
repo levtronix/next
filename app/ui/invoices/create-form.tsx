@@ -1,7 +1,10 @@
+'use client';
+
+import { useActionState } from 'react';
 import { CustomerField } from '@/app/lib/definitions';
 import Link from 'next/link';
-import { createInvoice } from '@/app/lib/actions';
-import { Button } from '@/app/ui/button';
+import { createInvoice, State } from '@/app/lib/actions';
+import Button from '@/app/ui/button';
 
 import {
   CheckIcon,
@@ -16,9 +19,11 @@ type FormProps = {
 
 const Form = (props: FormProps) => {
   const { customers } = props;
+  const initialState: State = { errors: {}, message: null };
+  const [state, formAction] = useActionState(createInvoice, initialState);
 
   return (
-    <form action={createInvoice}>
+    <form action={formAction}>
       <div className={'rounded-md bg-gray-50 p-4 md:p-6'}>
         <div className={'mb-4'}>
           <label className={'mb-2 block text-sm font-medium'} htmlFor={'customer'}>
@@ -26,6 +31,7 @@ const Form = (props: FormProps) => {
           </label>
           <div className={'relative'}>
             <select
+              aria-describedby={'customer-error'}
               className={'peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500'}
               defaultValue={''}
               id={'customer'}
@@ -42,14 +48,23 @@ const Form = (props: FormProps) => {
             </select>
             <UserCircleIcon className={'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500'} />
           </div>
+          <div aria-atomic={'true'} aria-live={'polite'} id={'customer-error'}>
+            {state.errors?.customerId &&
+              state.errors.customerId.map((error: string) => (
+                <p className={'mt-2 text-sm text-red-500'} key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
         <div className={'mb-4'}>
           <label className={'mb-2 block text-sm font-medium'} htmlFor={'amount'}>
-            Choose an amount
+            {'Choose an amount'}
           </label>
           <div className={'relative mt-2 rounded-md'}>
             <div className={'relative'}>
               <input
+                aria-describedby={'amount-error'}
                 className={'peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500'}
                 id={'amount'}
                 name={'amount'}
@@ -59,6 +74,14 @@ const Form = (props: FormProps) => {
               />
               <CurrencyDollarIcon className={'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900'} />
             </div>
+          </div>
+          <div aria-atomic={'true'} aria-live={'polite'} id={'amount-error'}>
+            {state.errors?.amount &&
+              state.errors.amount.map((error: string) => (
+                <p className={'mt-2 text-sm text-red-500'} key={error}>
+                  {error}
+                </p>
+              ))}
           </div>
         </div>
         <fieldset>
@@ -99,7 +122,22 @@ const Form = (props: FormProps) => {
               </div>
             </div>
           </div>
+          <div aria-atomic={'true'} aria-live={'polite'} id={'status-error'}>
+            {state.errors?.status &&
+              state.errors.status.map((error: string) => (
+                <p className={'mt-2 text-sm text-red-500'} key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </fieldset>
+        <div aria-atomic={'true'} aria-live={'polite'} id={'form-error'}>
+          {state.message ? (
+            <p className={'mt-2 text-sm text-red-500'}>
+              {state.message}
+            </p>
+          ) : null}
+        </div>
       </div>
       <div className={'mt-6 flex justify-end gap-4'}>
         <Link

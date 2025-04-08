@@ -1,15 +1,29 @@
+'use client';
+
+import { Fragment, useActionState } from 'react';
 import { lusitana } from '@/app/ui/fonts';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { Button } from './button';
+import Button from './button';
+import { authenticate } from '@/app/lib/actions';
+import { useSearchParams } from 'next/navigation';
 
 import {
   AtSymbolIcon,
-  KeyIcon,
+  ExclamationCircleIcon,
+  KeyIcon
 } from '@heroicons/react/24/outline';
 
 const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
+  const [errorMessage, formAction, isPending] = useActionState(
+    authenticate,
+    undefined,
+  );
+
   return (
-    <form className={'space-y-3'}>
+    <form action={formAction} className={'space-y-3'}>
       <div className={'flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8'}>
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
           {'Please log in to continue.'}
@@ -55,14 +69,24 @@ const LoginForm = () => {
             </div>
           </div>
         </div>
-        <Button
-          className={'mt-4 w-full'}
-          title={'Log in'}
-          type={'button'}
-        >
+        <input name={'redirectTo'} type={'hidden'} value={callbackUrl} />
+        <Button aria-disabled={isPending} className={'mt-4 w-full'}>
           {'Log in'} <ArrowRightIcon className={'ml-auto h-5 w-5 text-gray-50'} />
         </Button>
-        <div className={'flex h-8 items-end space-x-1'} />
+        <div
+          aria-atomic={'true'}
+          aria-live={'polite'}
+          className={'flex h-8 items-end space-x-1'}
+        >
+          {errorMessage ? (
+            <Fragment>
+              <ExclamationCircleIcon className={'h-5 w-5 text-red-500'} />
+              <p className={'text-sm text-red-500'}>
+                {errorMessage}
+              </p>
+            </Fragment>
+          ) : null}
+        </div>
       </div>
     </form>
   );
